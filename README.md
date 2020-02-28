@@ -14,5 +14,5 @@ docker run -d -p8080:8080 jenkins/jenkins
 
 
 
-### WIP
+### WIP - testing
 ## Jenkins Telegram integration
