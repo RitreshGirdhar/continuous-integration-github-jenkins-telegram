@@ -40,8 +40,36 @@ docker run -d -p8080:8080 jenkins/jenkins
 
  
 ## Telegram Bot Set up
-* WIP 
-*
-*
+* Open Telegram App. Search @BotFater , send /newbot command and then send bot name and the user name.
+![Bot Set up](images/bot-setup.jpeg)
+* Once Bot is set up invoke below api using http api token. In response you will find chatId value.
+```
+curl -ivk https://api.telegram.org/bot<http-token>/getUpdates
+``` 
+* Configure Chat ID and Http Token in jenkins as a secret Credentials.
+![telegram chat id and token secret](images/telegram_chat_id_token_secret.png)
 
-## Jenkins Telegram integration
+* Configure below stage in jenkins job pipeline
+```
+stage('Push Notification') {
+
+         steps {
+
+            script{
+
+                withCredentials([string(credentialsId: 'telegramToken', variable: 'TOKEN'),
+                string(credentialsId: 'telegramChatId', variable: 'CHAT_ID')]) {
+                   sh """
+                    curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d text="Commited changes are test and build state is OK"
+                   """
+                }
+            }
+         }
+      }
+```
+* After successful build , job state would be
+![Build states](images/Build-states.png)
+
+* Don't forget to check Telegram messgae
+
+![telegram message](images/telegram-message.jpeg)
