@@ -1,10 +1,5 @@
 pipeline {
-   agent {
-        docker {
-            image 'maven:3-alpine' 
-            args '-u root:sudo -v /root/.m2:/root/.m2' 
-        }
-    }
+   agent any
    stages {
      stage('Clean workspace') {
         steps {
@@ -15,14 +10,6 @@ pipeline {
         steps {
                checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: 'https://github.com/RitreshGirdhar/continuous-integration-github-jenkins-telegram.git']], branches: [[name: 'origin/master']]], poll: false
         }
-      }
-      stage ('Initialize') {
-                  steps {
-                      sh '''
-                          echo "PATH = ${PATH}"
-                          echo "M2_HOME = ${M2_HOME}"
-                      '''
-                  }
       }
       stage('Build') {
               steps {
@@ -39,11 +26,19 @@ pipeline {
                     }
       }
       stage('Notification') {
-                  steps {
-                            sh """
-                                    mvn clean install
-                            """
-                  }
-      }
+         steps {
+               script {
+                        withCredentials([string(credentialsId: 'telegramToken', variable: 'TOKEN'),
+                             string(credentialsId: 'telegramChatId', variable: 'CHAT_ID')]) {
+                                    sh """
+                                          curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode="HTML" -d text="<b>Project</b> : POC \
+                                              <b>Branch</b>: master \
+                                               <b>Build </b> : OK \
+                                               <b>Test suite</b> = Passed"
+                                     """
+                        }
+                    }
+               }
+       }
    }
 }
