@@ -15,7 +15,7 @@ docker run -d -p8080:8080 jenkins/jenkins
 
 ## Github Jenkins WebHooks integration
 
-* Goto Github Account -> Setting -> Personal Access Token. Choose repo, admin.repo options and generate token. Do copy the token.
+* Goto Github Account -> Setting -> Developer Settings -> Personal Access Token. Choose repo, admin.repo options and generate token. Do copy the token.
 ![personal token generation options](images/personal-token-generation-options.png)
 
 * Configure Github personal token in Jenkins Configuration Before that Goto Jenkins -> Credentials -> Global Credentials -> Add credentials -> Select Secret text option and copy the token 
