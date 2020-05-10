@@ -5,9 +5,6 @@ and push notification through telegram
 ### Pre-requisite 
 * You should have basic knowledge of docker + jenkins + git + declarative pipeline
 
-
-
-
 ## Set up Jenkins
 ```
 docker run -d -p8080:8080 jenkins/jenkins
