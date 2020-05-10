@@ -1,0 +1,67 @@
+pipeline {
+   agent any
+   parameters {
+           gitParameter defaultValue: 'origin/master', name: 'BRANCH', type: 'PT_BRANCH_TAG',quickFilterEnabled:true ,description: 'Select Branch'
+           string(name: 'docker_registry', defaultValue: 'hub.docker.com/repository/docker', description: 'docker registry')
+           string(name: 'docker_repository', defaultValue: 'ritreshgirdhar', description: 'docker repository')
+           ritreshgirdhar/sample-microservice-ansible
+   }
+   stages {
+      stage('Checkout') {
+        steps {
+               checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: 'https://github.com/RitreshGirdhar/continuous-deployment-ansible.git']], branches: [[name: '${BRANCH}']]], poll: false
+        }
+      }
+      stage('Capture Version') {
+          steps {
+                script {
+                       def pom = readMavenPom file: 'pom.xml'
+                       env.version = pom.version
+                }
+           }
+      }
+      stage('Build') {
+            steps {
+                sh "mvn clean install"
+            }
+      }
+      stage('Test') {
+            steps {
+                sh "mvn clean test"
+            }
+      }
+      stage('Push') {
+         steps {
+              withCredentials([usernamePassword(credentialsId: 'docker_registry_credential', passwordVariable: 'REGISTRY_PASSWORD', usernameVariable: 'REGISTRY_USERNAME')]) {
+              sh """
+                    docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${env.docker_registry}
+                    docker tag weather-service:${env.version} ${env.docker_registry}/${env.docker_repository}/weather-service:${env.version}
+                    docker push ${env.docker_registry}/${env.docker_repository}/weather-service:${env.version}
+                    docker logout ${env.docker_registry}
+                """
+              }
+          }
+      }
+      stage('Deploy') {
+         steps {
+                withCredentials([
+                usernamePassword(credentialsId: 'ssh_dev_credential', passwordVariable: 'SSH_PASSWORD', usernameVariable: 'SSH_USERNAME'),
+                usernamePassword(credentialsId: 'docker_registry_credential', passwordVariable: 'REGISTRY_PASSWORD', usernameVariable: 'REGISTRY_USERNAME')
+                ]) {
+                        sh """
+                            > /tmp/hosts
+                            echo "[server]" > /tmp/hosts
+                            echo " ${env.selected_environment}" >> /tmp/customapi_hosts
+                            cd ansible_deployment/
+                            ansible-playbook -i /tmp/hosts playbooks/deploy.yaml
+                        """
+                }
+            }
+      }
+      stage('Notification') {
+          steps {
+              sh ' Preferred way is integrate with MS Teams/Slack rather than mail.'
+          }
+      }
+   }
+}

@@ -1,4 +1,4 @@
-#  continuous-integration - Github Jenkins Webhooks integration - Send notification to telegram via Jenkins
+# Continuous-integration - Github Jenkins Webhooks integration - Send notification to telegram via Jenkins
 For every commit or MR merged to master branch Github webhook will generate event to Jenkins job which will build + test master branch 
 and push notification through telegram
 
