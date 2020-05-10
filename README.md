@@ -2,6 +2,9 @@
 For every commit or MR merged to master branch Github webhook will generate event to Jenkins job which will build + test master branch 
 and push notification through telegram
 
+
+
+
 ### Pre-requisite 
 * You should have basic knowledge of docker + jenkins + git + declarative pipeline
 
