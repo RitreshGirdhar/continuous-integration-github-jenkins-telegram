@@ -8,7 +8,7 @@ pipeline {
       }
      stage('Checkout') {
         steps {
-               checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: 'https://github.com/RitreshGirdhar/microservice-deployment-ansible-jenkinsfile.git']], branches: [[name: 'origin/master']]], poll: false
+               checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: 'https://github.com/RitreshGirdhar/continuous-integration-github-jenkins-telegram.git']], branches: [[name: 'origin/master']]], poll: false
         }
       }
    }
